@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HTTP GET Request Handler</title>
+  </head>
+  <body>
+    <script>
+      // Get the query string from the URL
+      const queryString = window.location.search;
+      
+      // Check if the query string matches a specific value
+      if (queryString === '?name=John') {
+        // If the query string matches, return a specific string
+        document.write('Hello John!');
+      } else {
+        // If the query string doesn't match, return an error message
+        document.write('Error: Invalid request.');
+      }
+    </script>
+  </body>
+</html>
