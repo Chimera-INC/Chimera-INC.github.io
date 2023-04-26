@@ -59,13 +59,19 @@
         color: #fff;
         padding: 0px;
       }
+      audio {
+        display: flex;
+        margin: auto;
+        color: #333;
+        padding: 5px;
+      }
     </style>
   </head>
   <body>
     <header></header>
     <div class="navbar">
       <a href="https://serainox420.github.io/about">[ ABOUT ]</a>
-      <a href="https://chimera-inc.github.io">[ MY PROJECTS ]</a>
+      <a href="https://serainox420.github.io/projects">[ MY PROJECTS ]</a>
       </div>
       <div class="navbar">
       <a href="https://github.com/serainox420">[GITHUB]</a>
@@ -75,7 +81,6 @@
     <footer>
       <p>&copy; 2023 Szmelc Incorporated</p>
     </footer>
-    <audio src="https://serainox420.github.io/audio/test1.mp3" loop autoplay controls></audio>
     <script>
       setInterval(() => {
         const elements = document.querySelectorAll("*");
@@ -90,5 +95,7 @@
   return color;
 }
     </script>
+    <audio src="https://serainox420.github.io/audio/test.mp3" loop autoplay controls>
+    </audio>
   </body>
 </html>
