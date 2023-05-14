@@ -2,10 +2,195 @@
 <html>
 <head>
 <title>Page Title</title>
+<title>3D Cube</title>
+<style>
+  canvas {
+    border: 1px solid black;
+    display: block;
+    margin: 20px auto;
+  }
+</style>
 </head>
 <body>
 <h1>This is a Heading</h1>
 <p>This is a paragraph.</p>
 <iframe width="100" height="100" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1496578558&auto_play=true&show_teaser=true"></iframe>
+<canvas id="canvas" width="400" height="400"></canvas>
+
+  <script>
+    // Get the canvas element
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl');
+
+    // Define the vertices of the cube
+    const vertices = [
+      // Front face
+      -0.5, -0.5, 0.5,
+      0.5, -0.5, 0.5,
+      0.5, 0.5, 0.5,
+      -0.5, 0.5, 0.5,
+
+      // Back face
+      -0.5, -0.5, -0.5,
+      -0.5, 0.5, -0.5,
+      0.5, 0.5, -0.5,
+      0.5, -0.5, -0.5,
+
+      // Top face
+      -0.5, 0.5, -0.5,
+      -0.5, 0.5, 0.5,
+      0.5, 0.5, 0.5,
+      0.5, 0.5, -0.5,
+
+      // Bottom face
+      -0.5, -0.5, -0.5,
+      0.5, -0.5, -0.5,
+      0.5, -0.5, 0.5,
+      -0.5, -0.5, 0.5,
+
+      // Right face
+      0.5, -0.5, -0.5,
+      0.5, 0.5, -0.5,
+      0.5, 0.5, 0.5,
+      0.5, -0.5, 0.5,
+
+      // Left face
+      -0.5, -0.5, -0.5,
+      -0.5, -0.5, 0.5,
+      -0.5, 0.5, 0.5,
+      -0.5, 0.5, -0.5,
+    ];
+
+    // Define the vertex indices for the cube
+    const indices = [
+      0, 1, 2, 0, 2, 3, // Front face
+      4, 5, 6, 4, 6, 7, // Back face
+      8, 9, 10, 8, 10, 11, // Top face
+      12, 13, 14, 12, 14, 15, // Bottom face
+      16, 17, 18, 16, 18, 19, // Right face
+      20, 21, 22, 20, 22, 23, // Left face
+    ];
+
+        
+    // Create buffer objects for vertices and indices
+    const vertexBuffer = gl.createBuffer();
+    const indexBuffer = gl.createBuffer();
+
+    // Bind vertex buffer object and pass the vertices data
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    // Bind index buffer object and pass the indices data
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+    // Create vertex shader
+    const vertexShaderSource = `
+    attribute vec3 coordinates;
+    uniform mat4 matRotationX;
+    uniform mat4 matRotationY;
+    void main() {
+    mat4 modelMatrix = mat4(matRotationX * matRotationY);
+    gl_Position = modelMatrix * vec4(coordinates, 1.0);
+    }
+
+    `;
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+
+    // Create fragment shader
+    const fragmentShaderSource = `
+    precision mediump float;
+    void main() {
+        vec3 lightDirection = normalize(vec3(0.5, 0.7, 1.0)); // Direction of the light source
+        vec3 color = vec3(1.0, 0.0, 0.0); // Cube color (red)
+
+        // Calculate the dot product between the light direction and the surface normal
+        float dotProduct = dot(lightDirection, normalize(gl_FragCoord.xyz));
+
+        // Apply shading based on the dot product
+        vec3 shadedColor = color * max(dotProduct, 0.0);
+
+        gl_FragColor = vec4(shadedColor, 1.0);
+    }
+
+    `;
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+
+    // Create shader program and attach shaders
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    gl.useProgram(shaderProgram);
+
+    // Get the reference to the "coordinates" attribute in the vertex shader
+    const coordAttribute = gl.getAttribLocation(shaderProgram, "coordinates");
+    gl.vertexAttribPointer(coordAttribute, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(coordAttribute);
+
+    // Clear the canvas
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Variables to control rotation
+    let angleX = 0;
+    let angleY = 0;
+
+    // Function to animate the cube
+    function animateCube() {
+      // Clear the canvas
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      // Set rotation matrix uniforms
+      const matRotationX = new Float32Array([
+        1, 0, 0, 0,
+        0, Math.cos(angleX), -Math.sin(angleX), 0,
+        0, Math.sin(angleX), Math.cos(angleX), 0,
+        0, 0, 0, 1
+      ]);
+      const matRotationY = new Float32Array([
+        Math.cos(angleY), 0, Math.sin(angleY), 0,
+        0, 1, 0, 0,
+        -Math.sin(angleY), 0, Math.cos(angleY), 0,
+        0, 0, 0, 1
+      ]);
+
+      const matRotationXLocation = gl.getUniformLocation(shaderProgram, "matRotationX");
+      gl.uniformMatrix4fv(matRotationXLocation, false, matRotationX);
+
+      const matRotationYLocation = gl.getUniformLocation(shaderProgram, "matRotationY");
+      gl.uniformMatrix4fv(matRotationYLocation, false, matRotationY);
+
+      // Draw the cube
+      gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+
+      // Request the next animation frame
+      requestAnimationFrame(animateCube);
+    }
+
+    // Update rotation angles based on mouse movement
+    function updateRotation(event) {
+      const width = canvas.width;
+      const height = canvas.height;
+      const offsetX = event.clientX - canvas.offsetLeft;
+      const offsetY = event.clientY - canvas.offsetTop;
+      const percentX = offsetX / width;
+      const percentY = offsetY / height;
+
+      angleX = (percentY - 0.5) * Math.PI;
+      angleY = (percentX - 0.5) * Math.PI;
+    }
+
+    // Add mouse movement event listener
+    canvas.addEventListener('mousemove', updateRotation);
+
+    // Call the animateCube function to start the animation
+    animateCube();
+
+    </script>
 </body>
 </html>
